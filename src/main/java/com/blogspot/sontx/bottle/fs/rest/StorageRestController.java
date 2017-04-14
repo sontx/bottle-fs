@@ -5,14 +5,8 @@ import com.blogspot.sontx.bottle.fs.service.StorageService;
 import com.blogspot.sontx.bottle.fs.service.StorageServiceImpl;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import java.io.InputStream;
 
 @Path("storage")
@@ -29,5 +23,11 @@ public class StorageRestController {
             return Response.ok(uploadResult).build();
         else
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+
+    @GET
+    @Path("{fileName}")
+    public StreamingOutput downloadAsStream(@PathParam("fileName") String fileName) {
+        return storageService.getStreamingOutput(fileName);
     }
 }

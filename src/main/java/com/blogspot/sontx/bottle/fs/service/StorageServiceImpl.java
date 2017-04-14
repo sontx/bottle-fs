@@ -4,6 +4,8 @@ import com.blogspot.sontx.bottle.fs.bean.UploadResult;
 import com.blogspot.sontx.bottle.fs.utils.SecuredTokenFactory;
 import org.joda.time.DateTime;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 
 public class StorageServiceImpl implements StorageService {
@@ -44,7 +46,7 @@ public class StorageServiceImpl implements StorageService {
 
             UploadResult uploadResult = new UploadResult();
             uploadResult.setName(fileName);
-            uploadResult.setUrl("http://localhost:8080/bottlfs/rest/storage?f=" + fileName);
+            uploadResult.setUrl("http://localhost:8080/bottlfs/rest/storage/" + fileName);
             return uploadResult;
         } catch (IOException e) {
             e.printStackTrace();
@@ -57,5 +59,35 @@ public class StorageServiceImpl implements StorageService {
             }
         }
         return null;
+    }
+
+    @Override
+    public StreamingOutput getStreamingOutput(String fileName) {
+        File downloadFileLocation = new File(RESOURCE_DIR, fileName);
+        try {
+            InputStream in = new FileInputStream(downloadFileLocation);
+            return new FileStreamingOutput(in);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static class FileStreamingOutput implements StreamingOutput {
+        private final InputStream in;
+
+        private FileStreamingOutput(InputStream in) {
+            this.in = in;
+        }
+
+        @Override
+        public void write(OutputStream out) throws IOException, WebApplicationException {
+            byte[] buffer = new byte[1024];
+            int chunk;
+            while ((chunk = in.read(buffer, 0, buffer.length)) > 0) {
+                out.write(buffer, 0, chunk);
+            }
+            in.close();
+        }
     }
 }
