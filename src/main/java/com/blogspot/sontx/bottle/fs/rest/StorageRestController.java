@@ -1,6 +1,7 @@
 package com.blogspot.sontx.bottle.fs.rest;
 
 import com.blogspot.sontx.bottle.fs.bean.UploadResult;
+import com.blogspot.sontx.bottle.fs.security.Secured;
 import com.blogspot.sontx.bottle.fs.service.StorageService;
 import com.blogspot.sontx.bottle.fs.service.StorageServiceImpl;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -15,6 +16,7 @@ public class StorageRestController {
     private StorageService storageService = new StorageServiceImpl();
 
     @POST
+    @Secured
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response upload(@FormDataParam("file") InputStream in, @Context SecurityContext securityContext) {
