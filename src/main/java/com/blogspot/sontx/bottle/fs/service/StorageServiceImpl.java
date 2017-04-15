@@ -1,6 +1,7 @@
 package com.blogspot.sontx.bottle.fs.service;
 
 import com.blogspot.sontx.bottle.fs.bean.UploadResult;
+import com.blogspot.sontx.bottle.fs.utils.ConfigUtils;
 import com.blogspot.sontx.bottle.fs.utils.SecuredTokenFactory;
 import org.joda.time.DateTime;
 
@@ -9,7 +10,11 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 
 public class StorageServiceImpl implements StorageService {
-    private static final String RESOURCE_DIR = "F:/res";
+    private String resourceDir;
+
+    public StorageServiceImpl() {
+        resourceDir = ConfigUtils.getValue("default.res.dir");
+    }
 
     private String generateUploadFileName(int userId, String mimeType) {
         DateTime now = DateTime.now();
@@ -31,7 +36,7 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public UploadResult upload(InputStream in) {
         String fileName = generateUploadFileName(0, "jpg");
-        File uploadedFileLocation = new File(RESOURCE_DIR, fileName);
+        File uploadedFileLocation = new File(resourceDir, fileName);
 
         OutputStream out = null;
         try {
@@ -46,7 +51,6 @@ public class StorageServiceImpl implements StorageService {
 
             UploadResult uploadResult = new UploadResult();
             uploadResult.setName(fileName);
-            uploadResult.setUrl("http://localhost:8080/bottlfs/rest/storage/" + fileName);
             return uploadResult;
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,7 +67,7 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public StreamingOutput getStreamingOutput(String fileName) {
-        File downloadFileLocation = new File(RESOURCE_DIR, fileName);
+        File downloadFileLocation = new File(resourceDir, fileName);
         try {
             InputStream in = new FileInputStream(downloadFileLocation);
             return new FileStreamingOutput(in);

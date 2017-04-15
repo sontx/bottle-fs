@@ -1,6 +1,7 @@
 package com.blogspot.sontx.bottle.fs.security;
 
 import com.blogspot.sontx.bottle.fs.bean.VerifyResult;
+import com.blogspot.sontx.bottle.fs.utils.ConfigUtils;
 import com.blogspot.sontx.bottle.fs.utils.ConnectionUtils;
 import lombok.Getter;
 
@@ -20,7 +21,11 @@ import java.security.Principal;
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class AuthenticationFilter implements ContainerRequestFilter {
-    private static final String AUTH_SERVER_URL = "http://localhost:8080/bottle/rest/verify";
+    private String authServerUrl;
+
+    public AuthenticationFilter() {
+        authServerUrl = ConfigUtils.getValue("default.auth.server");
+    }
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -31,7 +36,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
         }
 
         try {
-            VerifyResult verifyResult = ConnectionUtils.post(AUTH_SERVER_URL, authorizationHeader, VerifyResult.class);
+            VerifyResult verifyResult = ConnectionUtils.post(authServerUrl, authorizationHeader, VerifyResult.class);
             requestContext.setSecurityContext(new AuthenticationSecurityContext(verifyResult));
         } catch (Exception e) {
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
