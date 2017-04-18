@@ -4,6 +4,7 @@ import com.blogspot.sontx.bottle.fs.bean.UploadResult;
 import com.blogspot.sontx.bottle.fs.security.Secured;
 import com.blogspot.sontx.bottle.fs.service.StorageService;
 import com.blogspot.sontx.bottle.fs.service.StorageServiceImpl;
+import lombok.extern.log4j.Log4j;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
@@ -11,6 +12,7 @@ import javax.ws.rs.core.*;
 import java.io.InputStream;
 
 @Path("storage")
+@Log4j
 public class StorageRestController {
 
     private StorageService storageService = new StorageServiceImpl();
@@ -20,6 +22,7 @@ public class StorageRestController {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response upload(@FormDataParam("file") InputStream in, @Context SecurityContext securityContext) {
+        log.info("uploading...");
         UploadResult uploadResult = storageService.upload(in);
         if (uploadResult != null)
             return Response.ok(uploadResult).build();
@@ -30,6 +33,7 @@ public class StorageRestController {
     @GET
     @Path("{fileName}")
     public StreamingOutput downloadAsStream(@PathParam("fileName") String fileName) {
+        log.info("stream: " + fileName);
         return storageService.getStreamingOutput(fileName);
     }
 }
