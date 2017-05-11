@@ -1,13 +1,17 @@
 package com.blogspot.sontx.bottle.fs.bean;
 
-import lombok.Data;
 
-@Data
+import lombok.Getter;
+import lombok.Setter;
+
 public class VerifyResult {
-    private String userId;
+    public static final int ROLE_USER = 0;
+    public static final int ROLE_ADMIN = 1;
 
-    @Override
-    public String toString() {
-        return userId;
-    }
+    @Getter
+    @Setter
+    private String userId;
+    @Getter
+    @Setter
+    private int role;
 }

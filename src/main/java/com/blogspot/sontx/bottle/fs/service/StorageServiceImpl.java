@@ -3,12 +3,14 @@ package com.blogspot.sontx.bottle.fs.service;
 import com.blogspot.sontx.bottle.fs.bean.UploadResult;
 import com.blogspot.sontx.bottle.fs.utils.ConfigUtils;
 import com.blogspot.sontx.bottle.fs.utils.SecuredTokenFactory;
+import lombok.extern.log4j.Log4j;
 import org.joda.time.DateTime;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 
+@Log4j
 public class StorageServiceImpl implements StorageService {
     private String resourceDir;
 
@@ -36,7 +38,14 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public UploadResult upload(InputStream in) {
         String fileName = generateUploadFileName(0, "jpg");
-        File uploadedFileLocation = new File(resourceDir, fileName);
+
+        File resourceDirFile = new File(resourceDir);
+        if (!resourceDirFile.isDirectory()) {
+            resourceDirFile.mkdirs();
+            log.info("create resource directory at " + resourceDirFile.getAbsolutePath());
+        }
+
+        File uploadedFileLocation = new File(resourceDirFile, fileName);
 
         OutputStream out = null;
         try {
@@ -75,6 +84,17 @@ public class StorageServiceImpl implements StorageService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public File getFile(String fileName) {
+        return new File(resourceDir, fileName);
+    }
+
+    @Override
+    public boolean delete(String fileName) {
+        File file = getFile(fileName);
+        return file.exists() && file.delete();
     }
 
     private static class FileStreamingOutput implements StreamingOutput {
