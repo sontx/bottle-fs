@@ -15,7 +15,10 @@ public class StorageServiceImpl implements StorageService {
     private String resourceDir;
 
     public StorageServiceImpl() {
-        resourceDir = ConfigUtils.getValue("default.res.dir");
+        File file = new File(this.getClass().getClassLoader().getResource("").getPath().replace("WEB-INF/classes/", ""), "resources");
+        if (!file.isDirectory())
+            file.mkdirs();
+        resourceDir = file.getAbsolutePath();
     }
 
     private String generateUploadFileName(int userId, String mimeType) {
